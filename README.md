@@ -12,6 +12,8 @@ These projects introduce various notions:
 - probability    
 
 ### Notes and grade
+<ins>Semester 1:</ins>     
+
 |   Projects    | my.epitech.eu | Notes |
 |:-------------:|:-------------:|:-----:|
 |    101pong    |     100%      | 20/20 |
@@ -21,3 +23,6 @@ These projects introduce various notions:
 | 105demography |     100%      | 20/20 |
 
 I obtained **grade A🏅**
+
+<ins>Semester 2:</ins>     
+Current
