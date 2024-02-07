@@ -1,0 +1,52 @@
+#!/bin/python3
+from sys import argv
+from key import *
+from message import *
+
+
+def encrypt():
+    key_matrix = get_key_matrix(argv)
+    print_key_matrix(key_matrix)
+    encrypt_message(argv, key_matrix)
+
+
+def decrypt():
+    key_matrix = get_key_matrix(argv)
+    key_matrix = inverse_matrix(key_matrix)
+    round_zero(key_matrix)
+    print_key_matrix(key_matrix)
+    decrypt_message(argv, key_matrix)
+
+
+def show_help():
+    print("USAGE\n" +
+          "    ./103cipher message key flag\n\n" +
+          "DESCRIPTION\n" +
+          "    message     a message, made of ASCII characters\n" +
+          "    key         the encryption key, made of ASCII characters\n" +
+          "    flag        0 for the message to be encrypted, 1 to be decrypted")
+
+
+def error_handling():
+    if len(argv) == 1:
+        print("No arguments passed")
+        exit(84)
+    if argv[1] == "-h":
+        show_help()
+        exit(0)
+    if len(argv) != 4:
+        print("Invalid arguments")
+        exit(84)
+    if len(argv[2]) > 16:
+        print("Invalid key")
+        exit(84)
+    if argv[3] != "0" and argv[3] != "1":
+        print("Invalid flags")
+        exit(84)
+
+
+error_handling()
+if argv[3] == "0":
+    encrypt()
+else:
+    decrypt()

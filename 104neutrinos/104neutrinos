@@ -1,0 +1,35 @@
+#!/bin/python3
+from sys import (argv)
+from get_mean import *
+from error_handling import *
+
+
+#CE SONT NOS COMMENTAIRES PAS CHATGPT MERCI
+
+
+def print_everything(n, a, h, sd):
+    count = error_nb(int(n))
+    a = float(a)
+    h = float(h)
+    sd = float(sd)
+    root = get_root_mean_square_first(sd, a)
+    print("Enter next value: ", end="")
+    value = input()
+    while value != "END":
+        value = error_handling_values(value)
+        a, sd, root, h = check_means(count, a, h, sd, value, root)
+        count += 1
+        print("    Number of values:   {}".format(count))
+        print("    Standard deviation: {:.2f}".format(sd))
+        print("    Arithmetic mean:    {:.2f}".format(a))
+        print("    Root mean square:   {:.2f}".format(root))
+        print("    Harmonic mean:      {:.2f}".format(h))
+        if count != int(n):  # Seulement pour ne pas afficher en double au début
+            print("\nEnter next value: ", end="")
+            value = input()
+    return 0
+
+
+usage()
+error_handling()
+print_everything(argv[1], argv[2], argv[3], argv[4])

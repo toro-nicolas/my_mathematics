@@ -1,0 +1,79 @@
+#!/bin/python3
+from math import sqrt
+from sys import argv
+from list_functions import *
+from get_infos import *
+
+
+N = 58
+mean_x = 1988.5
+years = [i for i in range(1960, 2018)]
+
+
+def usage():
+    if len(argv) == 1:
+        print("Invalid argument")
+        exit(84)
+    if len(argv) == 2 and argv[1] == "-h":
+        print("USAGE\n    ./105demography [code]+"
+              "\n\nDESCRIPTION"
+              "\n    code    country code")
+        exit(0)
+    return 0
+
+
+def function_x(x, a, b):
+    return soustract_list_with_number(multiply_list_with_number(x, a), b)
+
+
+def function_y(y, a, b):
+    return divide_list_with_number(soustract_list_with_number(y, b), a)
+
+
+def print_fit_one(years, fusionned_country, mean_x, mean_y, delta_x, delta_y):
+    a = sum(multiply_list(delta_x, delta_y)) / sum(power_list(delta_x, 2))
+    b = mean_y - a * mean_x
+    print("Fit1")
+    print("\tY = {:.2f} X ".format(a / 1000000), end="")
+    if b > 0:
+        print("+ ", end="")
+    else:
+        print("- ", end="")
+    print("{:.2f}".format(abs(b) / 1000000))
+    deviation = soustract_list(fusionned_country, function_x(years, a, -b))
+    root_mean_square_deviation = sqrt(get_means(power_list(deviation, 2)))
+    print("\tRoot-mean-square deviation: {:.2f}".format(root_mean_square_deviation / 1000000))
+    print("\tPopulation in 2050: {:.2f}".format((a * 2050 + b) / 1000000))
+
+
+def print_fit_two(years, fusionned_country, mean_x, mean_y, delta_x, delta_y):
+    print("Fit2")
+    a_2 = sum(multiply_list(delta_x, delta_y)) / sum(power_list(delta_y, 2))
+    b_2 = mean_x - a_2 * mean_y
+    print("\tX = {:.2f} Y ".format(a_2 * 1000000), end="")
+    if b_2 > 0:
+        print("+ ", end="")
+    else:
+        print("- ", end="")
+    print("{:.2f}".format(abs(b_2)))
+    deviation_2 = soustract_list(function_y(years, a_2, b_2), fusionned_country)
+    root_mean_square_deviation_2 = sqrt(get_means(power_list(deviation_2, 2)))
+    print("\tRoot-mean-square deviation: {:.2f}".format(root_mean_square_deviation_2 / 1000000))
+    print("\tPopulation in 2050: {:.2f}".format(((2050 - b_2) / a_2) / 1000000))
+
+
+def print_correlation(delta_x, delta_y):
+    correlation = sum(multiply_list(delta_x, delta_y)) / sqrt(sum(power_list(delta_x, 2)) * sum(power_list(delta_y, 2)))
+    print("Correlation: {:.4f}".format(correlation))
+
+
+usage()
+data = get_data_from_csv()
+country = get_country(argv, data)
+fusionned_country = get_fusionned_country(country)
+mean_y = get_means(fusionned_country)
+delta_x = get_deviation(years, mean_x)
+delta_y = get_deviation(fusionned_country, mean_y)
+print_fit_one(years, fusionned_country, mean_x, mean_y, delta_x, delta_y)
+print_fit_two(years, fusionned_country, mean_x, mean_y, delta_x, delta_y)
+print_correlation(delta_x, delta_y)

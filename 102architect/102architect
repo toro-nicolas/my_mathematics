@@ -1,0 +1,213 @@
+#!/bin/python3
+from sys import argv
+from math import cos, sin, radians
+
+
+point = []
+
+
+def print_result(matrix, final_coord):
+    print("{:.2f} {:.2f} {:.2f}".format(matrix[0][0], matrix[0][1], matrix[0][2]))
+    print("{:.2f} {:.2f} {:.2f}".format(matrix[1][0], matrix[1][1], matrix[1][2]))
+    print("{:.2f} {:.2f} {:.2f}".format(matrix[2][0], matrix[2][1], matrix[2][2]))
+    print("({:.2f}, {:.2f}) => ({:.2f}, {:.2f})".format(point[0], point[1], final_coord[0], final_coord[1]))
+
+
+def matrix_vector_product(matrix1, vector):
+    result = [0.00, 0.00, 0.00]
+    for i in range(len(matrix1)):
+        for j in range(len(vector)):
+            result[i] += matrix1[i][j] * vector[j]
+    return result
+
+
+def matrix_product(matrix_1, matrix_2):
+    result = [[matrix_1[0][0] * matrix_2[0][0] + matrix_1[0][1] * matrix_2[1][0] + matrix_1[0][2] * matrix_2[2][0],
+               matrix_1[0][0] * matrix_2[0][1] + matrix_1[0][1] * matrix_2[1][1] + matrix_1[0][2] * matrix_2[2][1],
+               matrix_1[0][0] * matrix_2[0][2] + matrix_1[0][1] * matrix_2[1][2] + matrix_1[0][2] * matrix_2[2][2]],
+              [matrix_1[1][0] * matrix_2[0][0] + matrix_1[1][1] * matrix_2[1][0] + matrix_1[1][2] * matrix_2[2][0],
+               matrix_1[1][0] * matrix_2[0][1] + matrix_1[1][1] * matrix_2[1][1] + matrix_1[1][2] * matrix_2[2][1],
+               matrix_1[1][0] * matrix_2[0][2] + matrix_1[1][1] * matrix_2[1][2] + matrix_1[1][2] * matrix_2[2][2]],
+              [matrix_1[2][0] * matrix_2[0][0] + matrix_1[2][1] * matrix_2[1][0] + matrix_1[2][2] * matrix_2[2][0],
+               matrix_1[2][0] * matrix_2[0][1] + matrix_1[2][1] * matrix_2[1][1] + matrix_1[2][2] * matrix_2[2][1],
+               matrix_1[2][0] * matrix_2[0][2] + matrix_1[2][1] * matrix_2[1][2] + matrix_1[2][2] * matrix_2[2][2]],]
+    return result
+
+
+def do_combinaison():
+    matrix = [[1.00, 0.00, 0.00],
+              [0.00, 1.00, 0.00],
+              [0.00, 0.00, 1.00]]
+
+    final_coord = list(point)
+    for i in range(len(argv)):
+        if argv[i] == "-t":
+            matrix = do_translation(matrix, i)
+        if argv[i] == "-z":
+            matrix = do_scaling(matrix, i)
+        if argv[i] == "-s":
+            matrix = do_reflection(matrix, i)
+        if argv[i] == "-r":
+            matrix = do_rotation(matrix, i)
+
+    for i in range(len(matrix)):
+        for j in range(len(matrix)):
+            float_a = matrix[i][j]
+            if float_a > -0.00001 and float_a < 0.00:
+                matrix[i][j] = 0.00
+    final_coord = matrix_vector_product(matrix, point)
+    for i in range(len(final_coord)):
+            float_a = final_coord[i]
+            if float_a > -0.00001 and float_a < 0.00:
+                final_coord[i] = 0.00
+    print_result(matrix, final_coord)
+
+
+def do_translation(matrix, i):
+    try:
+        float(argv[i + 1])
+        float(argv[i + 2])
+    except:
+        exit(84)
+    translation2 = [float(argv[i + 1]), float(argv[i + 2])]
+    translation_matrix = [[1, 0, translation2[0]],
+                          [0, 1, translation2[1]],
+                          [0, 0, 1]]
+    matrix = matrix_product(translation_matrix, matrix)
+    print("Translation along vector ({:.0f}, {:.0f})".format(translation2[0], translation2[1]))
+    return matrix
+
+
+def do_scaling(matrix, i):
+    try:
+        float(argv[i + 1])
+        float(argv[i + 2])
+    except:
+        exit(84)
+    scaling2 = [float(argv[i + 1]), float(argv[i + 2])]
+    scaling_matrix = [[scaling2[0], 0, 0],
+                      [0, scaling2[1], 0],
+                      [0, 0, 1]]
+    matrix = matrix_product(scaling_matrix, matrix)
+    print("Scaling by factors {:.0f} and {:.0f}".format(scaling2[0], scaling2[1]))
+    return matrix
+
+
+def do_reflection(matrix, i):
+    try:
+        float(argv[i + 1])
+    except:
+        exit(84)
+    reflection2 = [float(argv[i + 1])]
+    phi = radians(reflection2[0])
+    reflection_matrix = [[cos(2 * phi), sin(2 * phi), 0],
+                         [sin(2 * phi), -cos(2 * phi), 0],
+                         [0, 0, 1]]
+    matrix = matrix_product(reflection_matrix, matrix)
+    print("Reflection over an axis with an inclination angle of " + str(int(reflection2[0])) + " degrees")
+    return matrix
+
+
+def do_rotation(matrix, i):
+    try:
+        float(argv[i + 1])
+    except:
+        exit(84)
+    rotation2 = [float(argv[i + 1])]
+    phi = radians(rotation2[0])
+    rotation_matrix = [[cos(phi), -sin(phi), 0],
+                       [sin(phi), cos(phi), 0],
+                       [0, 0, 1]]
+    matrix = matrix_product(rotation_matrix, matrix)
+    print("Rotation by a " + str(int(rotation2[0])) + " degree angle")
+    return matrix
+
+
+def show_help():
+    print("USAGE\n" +
+          "    ./102architect.py x y transfo1 arg11 [arg12] [transfo2 arg21 [arg22]] ...\n" +
+          "DESCRIPTION\n" +
+          "    x   abscissa of the original point\n" +
+          "    y   ordinate of the original point\n\n" +
+          "    transfo arg1 [arg2]\n" +
+          "    -t i j  translation along vector (i, j)\n" +
+          "    -z m n  scaling by factors m (x-axis) and n (y-axis)\n" +
+          "    -r d    rotation centered in O by a d degree angle\n" +
+          "    -s d    reflection over the axis passing through O with an inclination\n" +
+          "            angle of d degrees")
+
+
+def error_handling():
+    if len(argv) == 1:
+        print("No arguments passed")
+        exit(84)
+    if argv[1] == "-h":
+        show_help()
+        exit(0)
+    if len(argv) < 5:
+        print("Missing arguments")
+        exit(84)
+
+
+def init_coordinates():
+    try:
+        point.append(float(argv[1]))
+        point.append(float(argv[2]))
+        point.append(1.0)
+    except:
+        print("Cant read the point coordinates")
+        exit(84)
+
+
+def init_parsing():
+    i = 2
+    while i < len(argv) - 1:
+        i = i + 1
+
+        if argv[i] == "-t":
+            try:
+                float(argv[i + 1])
+                float(argv[i + 2])
+                i = i + 2
+                continue
+            except:
+                print("Translation: invalid arguments")
+                exit(84)
+
+        if argv[i] == "-z":
+            try:
+                float(argv[i + 1])
+                float(argv[i + 2])
+                i = i + 2
+                continue
+            except:
+                print("Scaling: invalid arguments")
+                exit(84)
+
+        if argv[i] == "-r":
+            try:
+                float(argv[i + 1])
+                i = i + 1
+                continue
+            except:
+                print("Rotation: invalid arguments")
+                exit(84)
+
+        if argv[i] == "-s":
+            try:
+                float(argv[i + 1])
+                i = i + 1
+                continue
+            except:
+                print("Reflection: invalid arguments")
+                exit(84)
+
+        if argv[i] != "-t" and argv[i] != "-z" and argv[i] != "-s" and argv[i] != "-r":
+            print("Invalid arguments")
+            exit(84)
+
+
+error_handling()
+init_coordinates()
+init_parsing()
+do_combinaison()

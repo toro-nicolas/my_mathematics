@@ -1,0 +1,108 @@
+#!/bin/python3
+from math import sqrt, acos, cos, degrees
+from sys import argv
+
+
+def show_help():
+    if argv[1] == "-h" or argv[1] == "--help":
+        print("USAGE\n" +
+              "    ./101pong x0 y0 z0 x1 y1 z1 n\n\n" +
+              "DESCRIPTION\n" +
+              "    x0   ball abscissa at time t - 1\n" +
+              "    y0   ball ordinate at time t - 1\n" +
+              "    z0   ball altitude at time t - 1\n" +
+              "    x1   ball abscissa at time t\n" +
+              "    y1   ball ordinate at time t\n" +
+              "    z1   ball altitude at time t\n" +
+              "    n    time shift (greater than or equal to zero, integer)")
+        exit(84)
+
+
+def check_valid_arguments(number_of_argv):
+    if number_of_argv < 8:
+        print("Not enough arguments")
+        exit(84)
+
+    if number_of_argv > 8:
+        print("Too many arguments")
+        exit(84)
+
+    for i in range(1, 8):
+        try:
+            float(argv[i])
+        except:
+            print("Argument not valid")
+            exit(84)
+
+
+def velocity():
+    temp_vector = [round(coordinates[3] - coordinates[0], 2),
+                   round(coordinates[4] - coordinates[1], 2),
+                   round(coordinates[5] - coordinates[2], 2)]
+    print("({:.2f}, {:.2f}, {:.2f})".format(temp_vector[0], temp_vector[1], temp_vector[2]))
+    return temp_vector
+
+
+def after_time():
+    time_x = "%.2f" % (time_shift * vector[0] + coordinates[3])
+    time_y = "%.2f" % (time_shift * vector[1] + coordinates[4])
+    time_z = "%.2f" % (time_shift * vector[2] + coordinates[5])
+    print("(" + time_x + ", " + time_y + ', ' + time_z + ')')
+
+
+def get_norm(vector_temp):
+    norm = 0
+    for i in range(3):
+        norm += vector_temp[i] ** 2
+    return sqrt(norm)
+
+
+def get_scalar_product(vector1, vector2):
+    product = 0
+    for i in range(3):
+        product += (vector1[i] * vector2[i])
+    return product
+
+
+def reach_bat():
+    vector_z = [0, 0, 1]
+    norm = get_norm(vector)
+    norm_z = get_norm(vector_z)
+    product = get_scalar_product(vector, vector_z)
+
+    try:
+        angle = abs(degrees(acos(product / (norm * norm_z))) - 90)
+    except:
+        print("The ball won't reach the paddle.")
+        exit(84)
+    check_paddle = coordinates[5] * (time_shift * round(coordinates[5] - coordinates[2], 2) + coordinates[5])
+
+    if check_paddle <= 0:
+        print("The incidence angle is:")
+        print(f"{angle:.2f} degrees")
+    else:
+        print("The ball won't reach the paddle.")
+
+
+if len(argv) == 1:
+    print("No arguments passed")
+    exit(84)
+
+
+show_help()
+check_valid_arguments(len(argv))
+coordinates = [float(argv[1]), float(argv[2]), float(argv[3]),
+               float(argv[4]), float(argv[5]), float(argv[6])]
+for i in range(len(argv[7])):
+    if argv[7][i] == ".":
+        print("Time shift is a float")
+        exit(84)
+time_shift = int(argv[7])
+if time_shift < 0:
+    print("Time shift is negative")
+    exit(84)
+print("The velocity vector of the ball is:")
+vector = velocity()
+print("At time t + " + str(time_shift) + ", ball coordinates will be:")
+after_time()
+reach_bat()
