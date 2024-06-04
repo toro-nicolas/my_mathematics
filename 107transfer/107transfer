@@ -1,0 +1,48 @@
+#!/bin/python3
+from sys import argv, stderr
+from error_case import *
+
+
+def print_usage():
+    print("USAGE:")
+    print("    ./107transfer [num den]+")
+    print("DESCRIPTION")
+    print("    num     num polynomial numerator defined by its coefficients")
+    print("    den     den polynomial denominator defined by its coefficients")
+    return
+
+
+def transfer(num_list, den_list):
+    index = 0.0
+    while index <= 1.001:
+        result = 0.0
+        for list_index in range(len(num)):
+            num_result = 0.0
+            for num_index in range(len(num_list[list_index])):
+                num_result += num_list[list_index][num_index] * (index ** num_index)
+            den_result = 0.0
+            for den_index in range(len(den_list[list_index])):
+                den_result += den_list[list_index][den_index] * (index ** den_index)
+            if list_index == 0:
+                result += num_result / den_result
+            else:
+                result *= num_result / den_result
+        print(f"{index:.3f} -> {result:.5f}")
+        index += 0.001
+    return
+
+
+if __name__ == "__main__":
+    if len(argv) == 2 and argv[1] == "-h":
+        print_usage()
+    elif len(argv) > 2 and (len(argv) - 1) % 2 == 0:
+        num, den = check_args(argv)
+        try:
+            transfer(num, den)
+        except:
+            print("Can't transfer values", file=stderr)
+            exit(84)
+    else:
+        print("Bad arguments", file=stderr)
+        exit(84)
+    exit(0)

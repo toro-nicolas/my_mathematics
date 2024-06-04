@@ -1,0 +1,56 @@
+#!/bin/python3
+from sys import argv, stderr
+from error_case import *
+from matrix_function import *
+from math import sqrt
+
+
+def print_usage():
+    print("USAGE")
+    print("    ./108trigo fun a0 a1 a2 ...#br")
+    print("DESCRIPTION")
+    print("    fun    function to be applied, among at least \"EXP\", \"COS\", \"SIN\", \"COSH\"")
+    print("           and \"SINH\"")
+    print("    ai     coeficients of the matrix")
+    return
+
+
+def init_and_fill_matrix(matrix_size):
+    matrice = [[0.00 for i in range (matrix_size)] for j in range (matrix_size)]
+    n = 2
+    for i in range (len(matrice)):
+        for j in range (int(sqrt(len(argv) - 2))):
+            try:
+                matrice[i][j] = float(argv[n]);
+                n+=1
+            except ValueError:
+                print("error with filling the matrix", file=stderr)
+                exit(84)
+    return matrice
+
+
+def trigo():
+    matrix_size = int(sqrt(len(argv) - 2))
+    matrice = init_and_fill_matrix(matrix_size)
+    tab_functions = [exp, cos, sin, cosh, sinh]
+    arr2 = ["EXP", "COS", "SIN", "COSH", "SINH"]
+    for i in range(5):
+        if argv[1] == arr2[i]:
+            print_matrix(tab_functions[i](matrice))
+            return 0
+    return 0
+
+
+if __name__ == "__main__":
+    if len(argv) == 2 and argv[1] == "-h":
+        print_usage()
+        exit(0)
+    else:
+        if check_args(argv) == 84:
+            exit(84)
+        if argv[1] == "EXP" or argv[1] == "COS" or argv[1] == "SIN" or argv[1] == "COSH" or argv[1] == "SINH":
+            trigo()
+        else:
+            print("Invalid function", file=stderr)
+            exit(84)
+    exit(0)

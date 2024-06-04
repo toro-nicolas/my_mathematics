@@ -1,0 +1,108 @@
+#!/bin/python3
+from sys import argv, stderr
+from error_case import *
+
+
+def print_usage():
+    print("USAGE")
+    print("    ./109titration file")
+    print("DESCRIPTION")
+    print("    file    a csv file containing \"vol;ph\" lines")
+
+
+def derivative(volume, ph):
+    derivation = []
+    for i in range(1, len(volume) - 1):
+        a1 = volume[i + 1] - volume[i]
+        a2 = volume[i] - volume[i - 1]
+        value = a1 * ((ph[i] - ph[i - 1]) / (volume[i] - volume[i - 1]))
+        value = value + a2 * ((ph[i + 1] - ph[i]) / (volume[i + 1] - volume[i]))
+        div = a1 + a2
+        derivation.append(value / div)
+    return derivation
+
+
+def get_equivalence_point(volume, derivative):
+    index = derivative.index(max(derivative))
+    return volume[index]
+
+
+def display_derivative(derivative, volume):
+    for i in range(len(derivative)):
+        print(f"{volume[i]:.1f} ml -> {derivative[i]:.2f}")
+
+
+def get_zoom_volume(before, after):
+    zoom_volume = []
+    index = 0
+    while before + index <= after:
+        zoom_volume.append(before + index)
+        index += 0.1
+    return zoom_volume
+
+
+def get_sign_change(derivative_list):
+    sign = (derivative_list[0] < 0)
+    for i in range(len(derivative_list)):
+        if derivative_list[i] == 0:
+            return i
+        if sign != (derivative_list[i] < 0):
+            return i
+    return -1
+
+
+def titration(volume, ph):
+    print("Derivative:")
+    first_derivative = derivative(volume, ph)
+    new_volume = volume[1:-1]
+    display_derivative(first_derivative, new_volume)
+    print()
+    print("Equivalence point at {:.1f} ml".format(get_equivalence_point(new_volume, first_derivative)))
+    print()
+    print("Second derivative:")
+    second_derivative = derivative(new_volume, first_derivative)
+    new_volume = new_volume[1:-1]
+    display_derivative(second_derivative, new_volume)
+    print()
+    print("Second derivative estimated:")
+    index = first_derivative.index(max(first_derivative))
+    zoom_volume = get_zoom_volume(volume[index], volume[index + 2])
+    y_start = second_derivative[index - 2]
+    y_end = second_derivative[index]
+    y_middle = second_derivative[index - 1]
+    x_start = zoom_volume[0]
+    x_end = zoom_volume[-1]
+    x_middle = volume[index + 1]
+    y1 = y_start
+    y2 = y_middle
+    x1 = x_start
+    x2 = x_middle
+    y_list = []
+    for i in range(len(zoom_volume)):
+        y = y1 + ((y2 - y1) * ((zoom_volume[i] - x1) / (x2 - x1)))
+        y_list.append(y)
+        print(f"{zoom_volume[i]:.1f} ml -> {y:.2f}")
+        if zoom_volume[i] == x_middle:
+            y1 = y_middle
+            y2 = y_end
+            x1 = x_middle
+            x2 = x_end
+    print()
+    print("Equivalence point at {:.1f} ml".format(zoom_volume[get_sign_change(y_list)]))
+
+
+if __name__ == "__main__":
+    if len(argv) == 2 and argv[1] == "-h":
+        print_usage()
+        exit(0)
+    else:
+        volume = []
+        ph = []
+        if check_args(argv, volume, ph) == 84:
+            exit(84)
+        try:
+            titration(volume, ph)
+        except Exception:
+            print("An error occured", file=stderr)
+            exit(84)
+    exit(0)
